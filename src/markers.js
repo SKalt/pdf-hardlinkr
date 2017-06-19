@@ -10,21 +10,18 @@
 
 function point(x, y,radius){
   //
-  return {
-    type:'Feature',
-    properties: {radius},
-    geometry: { 
+  return  { 
       type:'Point',
-      coordinates:[ x, y ]
-    }
+      coordinates:[ x, y ] // in canvas / SVG
   };
 }
-function box(x, y, radius){
-  //
-}
-function text(x, y, text){
-  //
-}
+// TODO : make boxes & text.
+// function box(x, y, radius){
+//   //
+// }
+// function text(x, y, text){
+//   //
+// }
 
 // draw:
 // document.getElementById('canvas-id').addEventListener('mousedown', (e)=>f(e.clientX, e.clientY))
