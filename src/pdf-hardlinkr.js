@@ -6,7 +6,12 @@
 import PDFJS from 'pdfjs-dist';
 import { parse } from 'query-string';
 console.log(PDFJS);
-PDFJS.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
+const base = location.host + location.pathname;
+PDFJS.disableWorker = true;
+PDFJS.workerSrc = `//${base.replace(/\/[^\/]+\.html/, '')}/build/pdf.worker.min.js`;
+// ^ this assignment doesn't work and I don't know why, but I added 
+// pdf-linkr.worker.min.js to ./build .  PDFJS points to that as a default.
+console.log(PDFJS.workerSrc);
 // If absolute URL from the remote server is provided, configure the CORS
 // header on that server.
 
@@ -30,8 +35,8 @@ function drawCircle(num) {
     ctx.fillStyle = 'rgba(231, 13, 13, 0.45)';
     ctx.beginPath();
     const {height, width} = canvas;
-    const _x = x * width;
-    const _y = y * height;
+    const _x = Number(x) * width;
+    const _y = Number(y) * height;
     ctx.arc(_x, _y, 10, 0, 2 * Math.PI, true);
     ctx.fill();
   }
@@ -67,6 +72,8 @@ function renderPage(num) {
     
     // Wait for rendering to finish
     renderTask.promise.then(function() {
+      let pageLink = `${base}?file=${encodeURIComponent(file)}#page=${num}`;
+      document.getElementById('page-link-to-copy').text(pageLink);
       if (num == page){
         drawCircle(num);
       }
