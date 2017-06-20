@@ -3,11 +3,18 @@
 // adapted/taken from the examples at https://mozilla.github.io/pdf.js/examples/
 /* eslint-disable no-alert, no-console, no-debugger */
 // pdfjs init
+if (ENV !== 'production') {
+  document.write(
+    '<script src="http://' + (location.host || 'localhost').split(':')[0] +
+      ':35729/livereload.js?snipver=1"></' + 'script>'
+  );
+}
+
 import PDFJS from 'pdfjs-dist';
 import { parse } from 'query-string';
 console.log(PDFJS);
 const base = location.host + location.pathname;
-PDFJS.disableWorker = true;
+//PDFJS.PDFJS.disableWorker = true;
 PDFJS.workerSrc = `//${base.replace(/\/[^\/]+\.html/, '')}/build/pdf.worker.min.js`;
 // ^ this assignment doesn't work and I don't know why, but I added 
 // pdf-linkr.worker.min.js to ./build .  PDFJS points to that as a default.
@@ -19,7 +26,7 @@ const hash = parse(location.hash); // use #page=num as in standard pdf
 const search = parse(location.search);
 console.log(search);
 const {file, x, y} = search;
-const {page} = hash;
+const page = Number(hash.page);
 const params = {file, x, y, page};
 for (let param in params){
   if (!param){
@@ -30,20 +37,23 @@ for (let param in params){
 console.log({file, x, y, page});
 
 function drawCircle(num) {
-  if (num === page){
-    ctx.globalCompositeOperation = 'source-out';
-    ctx.fillStyle = 'rgba(231, 13, 13, 0.45)';
-    ctx.beginPath();
+  console.log('drawCircle');
+  let _ctx = document.getElementById('the-canvas').getContext('2d');
+  if (num === params.page){
+    _ctx.globalCompositeOperation = 'destination-over';
+    _ctx.fillStyle = 'rgba(231, 13, 13, 0.45)';
+    _ctx.beginPath();
     const {height, width} = canvas;
     const _x = Number(x) * width;
     const _y = Number(y) * height;
-    ctx.arc(_x, _y, 10, 0, 2 * Math.PI, true);
-    ctx.fill();
+    
+    _ctx.arc(_x, _y, 10, 0, 2 * Math.PI, true);
+    _ctx.fill();
   }
 }
 
 var pdfDoc = null,
-  pageNum = page,
+  pageNum = Number(page),
   pageRendering = false,
   pageNumPending = null,
   scale = 2,
@@ -54,6 +64,7 @@ var pdfDoc = null,
  * @param num Page number.
  */
 function renderPage(num) {
+  console.log('renderPage');
   pageRendering = true;
   // Using promise to fetch the page
   // Update page counters
@@ -73,10 +84,7 @@ function renderPage(num) {
     // Wait for rendering to finish
     renderTask.promise.then(function() {
       let pageLink = `${base}?file=${encodeURIComponent(file)}#page=${num}`;
-      document.getElementById('page-link-to-copy').text(pageLink);
-      if (num == page){
-        drawCircle(num);
-      }
+      document.getElementById('page-link-to-copy').textContent = pageLink;
       pageRendering = false;
       if (pageNumPending !== null) {
         // New page rendering is pending
@@ -84,6 +92,12 @@ function renderPage(num) {
         pageNumPending = null;
       }
     });
+  }).then(()=>{
+    console.log('then', num);
+    if (num == params.page){
+      drawCircle(num);
+      console.log(pageNumPending);
+    }
   });
 }
 
@@ -95,6 +109,7 @@ function renderPage(num) {
  * finised. Otherwise, executes rendering immediately.
  */
 function queueRenderPage(num) {
+  console.log('queueRenderPage');
   if (pageRendering) {
     pageNumPending = num;
   } else {
@@ -106,6 +121,7 @@ function queueRenderPage(num) {
  * Displays previous page.
  */
 function onPrevPage() {
+  console.log('onPrevPage');
   if (pageNum <= 1) {
     return;
   }
@@ -118,6 +134,7 @@ document.getElementById('prev').addEventListener('click', onPrevPage);
  * Displays next page.
  */
 function onNextPage() {
+  console.log('onNextPage');
   if (pageNum >= pdfDoc.numPages) {
     return;
   }
