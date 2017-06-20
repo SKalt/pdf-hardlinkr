@@ -25,15 +25,20 @@ console.log(PDFJS.workerSrc);
 const hash = parse(location.hash); // use #page=num as in standard pdf
 const search = parse(location.search);
 console.log(search);
-const {file, x, y} = search;
-const page = Number(hash.page);
-const params = {file, x, y, page};
-for (let param in params){
-  if (!param){
-    alert(`missing ${param}`);
-    throw new Error('missing required urlencoded search parameter ' + param);
-  }
+var {file, x, y} = search;
+var page = Number(hash.page);
+var params = {x, y, page};
+if (!file){
+  file = encodeURI(
+    prompt(
+      'please enter a url to a readily-available pdf',
+      'https://arxiv.org/pdf/1504.05140.pdf'
+    )
+  );
+  page = 1;
+  console.log(file, page);
 }
+//document.getElementById('svg-cover')
 console.log({file, x, y, page});
 
 function drawCircle(num) {
