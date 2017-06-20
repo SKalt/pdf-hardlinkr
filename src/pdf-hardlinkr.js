@@ -1,24 +1,28 @@
 // A web-oriented es6 script to link to points within pdfs
 // This is a work-in-progress / proof-of-concept. Hence, nearly all this code is
 // adapted/taken from the examples at https://mozilla.github.io/pdf.js/examples/
-
+/* eslint-disable no-alert, no-console, no-debugger */
 // pdfjs init
-import * from 'pdfjs-dist';
-import {parse} from 'query-string';
-
+import PDFJS from 'pdfjs-dist';
+import { parse } from 'query-string';
+console.log(PDFJS);
+PDFJS.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
 // If absolute URL from the remote server is provided, configure the CORS
 // header on that server.
 
-const hash = parse(location.hash) // use #page=num as in standard pdf
-const search = parse(location.search)
+const hash = parse(location.hash); // use #page=num as in standard pdf
+const search = parse(location.search);
+console.log(search);
 const {file, x, y} = search;
 const {page} = hash;
-for (let thing in {file, x, y, page}){
-  if (!thing){
-    alert(`missing {thing}`);
-    throw new Error('missing required urlencoded search parameter ' + thing);
+const params = {file, x, y, page};
+for (let param in params){
+  if (!param){
+    alert(`missing ${param}`);
+    throw new Error('missing required urlencoded search parameter ' + param);
   }
 }
+console.log({file, x, y, page});
 
 function drawCircle(num) {
   if (num === page){
@@ -28,13 +32,10 @@ function drawCircle(num) {
     const {height, width} = canvas;
     const _x = x * width;
     const _y = y * height;
-    ctx.arc(x, y, 10, 0, 2 * Math.PI;, true);
+    ctx.arc(_x, _y, 10, 0, 2 * Math.PI, true);
     ctx.fill();
   }
 }
-
-// The workerSrc property shall be specified. // TODO: check this works
-PDFJS.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
 
 var pdfDoc = null,
   pageNum = page,
@@ -42,8 +43,7 @@ var pdfDoc = null,
   pageNumPending = null,
   scale = 2,
   canvas = document.getElementById('the-canvas'),
-  ctx = canvas.getContext('2d'),
-
+  ctx = canvas.getContext('2d');
 /**
  * Get page info from document, resize canvas accordingly, and render page.
  * @param num Page number.
@@ -68,7 +68,7 @@ function renderPage(num) {
     // Wait for rendering to finish
     renderTask.promise.then(function() {
       if (num == page){
-	drawCircle(num);
+        drawCircle(num);
       }
       pageRendering = false;
       if (pageNumPending !== null) {
@@ -77,7 +77,7 @@ function renderPage(num) {
         pageNumPending = null;
       }
     });
-  })
+  });
 }
 
 //TODO: scrollTop <-> window innerWidth, innerHeight =>
@@ -119,13 +119,16 @@ function onNextPage() {
 }
 document.getElementById('next').addEventListener('click', onNextPage);
 
+/* -------------------------------- main ------------------------------------ */
 /**
  * Asynchronously downloads PDF.
  */
-PDFJS.getDocument(url).then(function(pdfDoc_) {
-  pdfDoc = pdfDoc_;
-  document.getElementById('page_count').textContent = pdfDoc.numPages;
+PDFJS.getDocument(file).then(
+  function(pdfDoc_) {
+    pdfDoc = pdfDoc_;
+    document.getElementById('page_count').textContent = pdfDoc.numPages;
 
-  // Initial/first page rendering
-  renderPage(pageNum);
-});
+    // Initial/first page rendering
+    renderPage(pageNum);
+  }
+);

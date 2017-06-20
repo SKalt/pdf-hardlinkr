@@ -1,0 +1,34 @@
+<head>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet"
+	  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+	  integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
+	  crossorigin="anonymous"
+    >
+    <script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+	integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+	crossorigin="anonymous"
+    ></script>
+    <!-- TODO: use rollup's tree-shaking ability to extract ONLY the necessary from bs's css -->
+</head>
+<body>
+    <h1>pdf-hardlinkr (extension of the PDF.js Previous/Next example)</h1>
+
+    <div>
+	<button id="prev">Previous</button>
+	<button id="next">Next</button>
+	&nbsp; &nbsp;
+	<span>Page: <span id="page_num"></span> / <span id="page_count"></span></span>
+	&nbsp; &nbsp;
+	<button id="copy-point-link">Link to a point on the pdf</button>
+	&nbsp; &nbsp;
+	<textarea id="point-link-to-copy"></textarea>
+	<button id="copy-page-link">Link to a pdf page</button>
+	<textarea id="page-link-to-copy"></textarea>
+    </div>
+
+    <canvas id="the-canvas"></canvas>
+    <!-- TODO:  -->
+    <script src="build/pdf-hardlinkr.min.js"></script>
+</body>

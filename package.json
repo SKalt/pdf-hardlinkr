@@ -5,7 +5,8 @@
   "main": "build/index.min.js",
   "module": "src/index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "build-dev": "rollup -c --watch"
   },
   "keywords": [
     "pdf",
@@ -28,10 +29,12 @@
     "rollup-plugin-eslint": "^3.0.0",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-plugin-replace": "^1.1.1",
-    "rollup-plugin-uglify": "^2.0.1"
+    "rollup-plugin-uglify": "^2.0.1",
+    "rollup-watch": "^4.0.0"
   },
   "dependencies": {
     "pdfjs-dist": "^1.8.452",
+    "query-string": "^4.3.4",
     "webpack": "^3.0.0"
   }
 }
