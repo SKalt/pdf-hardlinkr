@@ -20,15 +20,17 @@ for (let thing in {file, x, y, page}){
   }
 }
 
-function drawCircle() {
-  ctx.globalCompositeOperation = 'source-out';
-  ctx.fillStyle = 'rgba(231, 13, 13, 0.45)';
-  ctx.beginPath();
-  const {height, width} = canvas;
-  const _x = x * width;
-  const _y = y * height;
-  ctx.arc(x, y, 10, 0, 2 * Math.PI;, true);
-  ctx.fill();
+function drawCircle(num) {
+  if (num === page){
+    ctx.globalCompositeOperation = 'source-out';
+    ctx.fillStyle = 'rgba(231, 13, 13, 0.45)';
+    ctx.beginPath();
+    const {height, width} = canvas;
+    const _x = x * width;
+    const _y = y * height;
+    ctx.arc(x, y, 10, 0, 2 * Math.PI;, true);
+    ctx.fill();
+  }
 }
 
 // The workerSrc property shall be specified. // TODO: check this works
@@ -49,7 +51,9 @@ var pdfDoc = null,
 function renderPage(num) {
   pageRendering = true;
   // Using promise to fetch the page
-  pdfDoc.getPage(num).then(function(page) {
+  // Update page counters
+  document.getElementById('page_num').textContent = pageNum;
+  return pdfDoc.getPage(num).then(function(page) {
     var viewport = page.getViewport(scale);
     canvas.height = viewport.height;
     canvas.width = viewport.width;
@@ -60,11 +64,11 @@ function renderPage(num) {
       viewport: viewport
     };
     var renderTask = page.render(renderContext);
-
+    
     // Wait for rendering to finish
     renderTask.promise.then(function() {
       if (num == page){
-	drawCircle();
+	drawCircle(num);
       }
       pageRendering = false;
       if (pageNumPending !== null) {
@@ -73,9 +77,55 @@ function renderPage(num) {
         pageNumPending = null;
       }
     });
-  });
-
-  // Update page counters
-  document.getElementById('page_num').textContent = pageNum;
+  })
 }
 
+//TODO: scrollTop <-> window innerWidth, innerHeight =>
+// https://developer.mozilla.org/en-US/docs/Web/API/GlobalEventHandlers/onresize
+
+/**
+ * If another page rendering in progress, waits until the rendering is
+ * finised. Otherwise, executes rendering immediately.
+ */
+function queueRenderPage(num) {
+  if (pageRendering) {
+    pageNumPending = num;
+  } else {
+    renderPage(num);
+  }
+}
+
+/**
+ * Displays previous page.
+ */
+function onPrevPage() {
+  if (pageNum <= 1) {
+    return;
+  }
+  pageNum--;
+  queueRenderPage(pageNum);
+}
+document.getElementById('prev').addEventListener('click', onPrevPage);
+
+/**
+ * Displays next page.
+ */
+function onNextPage() {
+  if (pageNum >= pdfDoc.numPages) {
+    return;
+  }
+  pageNum++;
+  queueRenderPage(pageNum);
+}
+document.getElementById('next').addEventListener('click', onNextPage);
+
+/**
+ * Asynchronously downloads PDF.
+ */
+PDFJS.getDocument(url).then(function(pdfDoc_) {
+  pdfDoc = pdfDoc_;
+  document.getElementById('page_count').textContent = pdfDoc.numPages;
+
+  // Initial/first page rendering
+  renderPage(pageNum);
+});
