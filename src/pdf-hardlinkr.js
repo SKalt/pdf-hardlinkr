@@ -41,7 +41,42 @@ if (!file){
 //document.getElementById('svg-cover')
 console.log({file, x, y, page});
 
-function drawCircle(num) {
+function setCircleAttr (circle, attr, val) {
+  circle.setAttribute(attr, parseInt(val));
+}
+
+function drawLinkCircle(num){
+  console.log('drawCircle');
+  let circle = document.getElementById('link-marker');
+  if (num === params.page){
+    const {height, width} = canvas;
+    const _x = Number(x) * width;
+    const _y = Number(y) * height;
+    setCircleAttr(circle, 'r', 20);
+    setCircleAttr(circle, 'cx', _x);
+    setCircleAttr(circle, 'cy', _y);
+  } else {
+    setCircleAttr(circle, 'r', 0);
+  }
+}
+
+function drawClickCircle(e){
+  console.log(e);
+  let circle = document.getElementById('click-marker');
+  setCircleAttr(circle, 'r', 20);
+  let div = document.getElementById('container'); // svg, canvas, and div cover each other exactly
+  let [offsetX, offsetY] = [div.offsetLeft, div.offsetTop];
+  let [clickX, clickY] = [e.clientX - offsetX, e.clientY - offsetY];
+  let canvas = document.getElementById('the-canvas');
+  let  [_x, _y] = [clickX / canvas.width , clickY / canvas.height];
+  setCircleAttr(circle, 'cx', clickX);
+  setCircleAttr(circle, 'cy', clickY);
+  let textbox = document.getElementById('point-link-to-copy');
+  textbox.textContent = `http://${base}?x=${_x}&y=${_y}&file=${file}`;
+}
+
+/*
+function drawCircleCanvas(num) {
   console.log('drawCircle');
   let _ctx = document.getElementById('the-canvas').getContext('2d');
   if (num === params.page){
@@ -55,13 +90,13 @@ function drawCircle(num) {
     _ctx.arc(_x, _y, 10, 0, 2 * Math.PI, true);
     _ctx.fill();
   }
-}
+} */
 
 var pdfDoc = null,
   pageNum = Number(page),
   pageRendering = false,
   pageNumPending = null,
-  scale = 2,
+  scale = 1.5,
   canvas = document.getElementById('the-canvas'),
   ctx = canvas.getContext('2d');
 /**
@@ -99,10 +134,7 @@ function renderPage(num) {
     });
   }).then(()=>{
     console.log('then', num);
-    if (num == params.page){
-      drawCircle(num);
-      console.log(pageNumPending);
-    }
+    drawLinkCircle(num);
   });
 }
 
@@ -147,6 +179,7 @@ function onNextPage() {
   queueRenderPage(pageNum);
 }
 document.getElementById('next').addEventListener('click', onNextPage);
+document.getElementById('svg-cover').addEventListener('click', drawClickCircle);
 
 /* -------------------------------- main ------------------------------------ */
 /**

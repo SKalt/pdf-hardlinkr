@@ -1,21 +1,27 @@
 <head>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet"
-	  href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
-	  integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-	  crossorigin="anonymous"
-    >
-    <script
-	src="https://code.jquery.com/jquery-3.2.1.min.js"
-	integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
-	crossorigin="anonymous"></script>
-    <script
-	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
-	integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
-	crossorigin="anonymous"
-    ></script>
-   
-    <!-- TODO: use rollup's tree-shaking ability to extract ONLY the necessary from bs's css -->
+    <style type="text/css">
+     #container {
+	 position: relative;
+	 display: table;
+	 
+     }
+     #svg-cover {
+	 position: absolute;
+	 left: 0px;
+	 top: 0px;
+	 z-index: 2;
+	 width: 100%;
+	 height: 100%;
+     }
+     #click-marker {
+	 fill: blue;
+	 fill-opacity: .5;
+     }
+     #link-marker {
+	 fill:red;
+	 fill-opacity: .5;
+     }
+    </style>
 </head>
 <body>
     <h1>pdf-hardlinkr (extension of the PDF.js Previous/Next example)</h1>
@@ -32,11 +38,12 @@
 	<button id="copy-page-link">Link to a pdf page</button>
 	<textarea id="page-link-to-copy"></textarea>
     </div>
-
-    <canvas id="the-canvas"></canvas>
-    <svg id="svg-cover">
-	<circle id="click-marker" radius="10"></circle>
-	
-    </svg>
+    <div id="container">
+	<canvas id="the-canvas"></canvas>
+	<svg id="svg-cover">
+	    <circle id="click-marker"></circle>
+	    <circle id="link-marker"></circle>
+	</svg>
+    </div>
     <script src="build/pdf-hardlinkr.min.js"></script>
 </body>
