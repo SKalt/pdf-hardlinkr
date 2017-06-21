@@ -72,7 +72,9 @@ function drawClickCircle(e){
   setCircleAttr(circle, 'cx', clickX);
   setCircleAttr(circle, 'cy', clickY);
   let textbox = document.getElementById('point-link-to-copy');
-  textbox.textContent = `http://${base}?x=${_x}&y=${_y}&file=${file}`;
+  let pageNum = document.getElementById('page_num').textContent;
+  textbox.textContent = `http://${base}?x=${_x}&y=${_y}` +
+    `&file=${encodeURIComponent(file)}#page=${pageNum}`;
 }
 
 /*
@@ -123,7 +125,7 @@ function renderPage(num) {
     
     // Wait for rendering to finish
     renderTask.promise.then(function() {
-      let pageLink = `${base}?file=${encodeURIComponent(file)}#page=${num}`;
+      let pageLink = `${file}#page=${num}`;
       document.getElementById('page-link-to-copy').textContent = pageLink;
       pageRendering = false;
       if (pageNumPending !== null) {
