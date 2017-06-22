@@ -4,6 +4,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 import replace from 'rollup-plugin-replace';
 import uglify from 'rollup-plugin-uglify';
+import { minify } from 'uglify-es';
 
 export default {
   entry: 'src/pdf-hardlinkr.js',
@@ -28,6 +29,6 @@ export default {
     replace({
       ENV: JSON.stringify(process.env.NODE_ENV || 'development'),
     }),
-    (process.env.NODE_ENV === 'production' && uglify()),
+    (process.env.NODE_ENV === 'production' && uglify({}, minify)),
   ],
 };

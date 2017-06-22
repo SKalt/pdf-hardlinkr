@@ -12,19 +12,15 @@ if (ENV !== 'production') {
 
 import PDFJS from 'pdfjs-dist';
 import { parse } from 'query-string';
-console.log(PDFJS);
+/* -------------------------------------init--------------------------------- */
 const base = location.host + location.pathname;
-//PDFJS.PDFJS.disableWorker = true;
-PDFJS.workerSrc = `//${base.replace(/\/[^\/]+\.html/, '')}/build/pdf.worker.min.js`;
+PDFJS.workerSrc = `//${base.replace(/\/[^\/]+\.html/, '')}/build/` +
+  'pdf.worker.min.js';
 // ^ this assignment doesn't work and I don't know why, but I added 
 // pdf-linkr.worker.min.js to ./build .  PDFJS points to that as a default.
-console.log(PDFJS.workerSrc);
-// If absolute URL from the remote server is provided, configure the CORS
-// header on that server.
 
 const hash = parse(location.hash); // use #page=num as in standard pdf
 const search = parse(location.search);
-console.log(search);
 var {file, x, y} = search;
 var page = Number(hash.page);
 var params = {x, y, page};
@@ -36,15 +32,27 @@ if (!file){
     )
   );
   page = 1;
-  console.log(file, page);
 }
-//document.getElementById('svg-cover')
-console.log({file, x, y, page});
-
+var pdfDoc = null,
+  pageNum = Number(page),
+  pageRendering = false,
+  pageNumPending = null,
+  scale = 1.5,
+  canvas = document.getElementById('the-canvas'),
+  ctx = canvas.getContext('2d');
+/*--------------------------circle-drawing functions--------------------------*/
 function setCircleAttr (circle, attr, val) {
   circle.setAttribute(attr, parseInt(val));
 }
-
+const positionCircle = (circle, x, y) => {
+  setCircleAttr(circle, 'r', 20);
+  setCircleAttr(circle, 'cx', x);
+  setCircleAttr(circle, 'cy', y);
+};
+/**
+ * Draws a circle at the point on the pdf specified in the url
+ * @param {} num
+ */
 function drawLinkCircle(num){
   console.log('drawCircle');
   let circle = document.getElementById('link-marker');
@@ -52,25 +60,25 @@ function drawLinkCircle(num){
     const {height, width} = canvas;
     const _x = Number(x) * width;
     const _y = Number(y) * height;
-    setCircleAttr(circle, 'r', 20);
-    setCircleAttr(circle, 'cx', _x);
-    setCircleAttr(circle, 'cy', _y);
+    positionCircle(circle, _x, _y);
   } else {
     setCircleAttr(circle, 'r', 0);
   }
 }
-
+/**
+ * Draws a circle on at the point of a click on the pdf
+ * @param {} e
+ */
 function drawClickCircle(e){
   console.log(e);
   let circle = document.getElementById('click-marker');
-  setCircleAttr(circle, 'r', 20);
-  let div = document.getElementById('container'); // svg, canvas, and div cover each other exactly
+  let div = document.getElementById('container');
+  //note svg, canvas, and div cover each other exactly
   let [offsetX, offsetY] = [div.offsetLeft, div.offsetTop];
   let [clickX, clickY] = [e.clientX - offsetX, e.clientY - offsetY];
   let canvas = document.getElementById('the-canvas');
   let  [_x, _y] = [clickX / canvas.width , clickY / canvas.height];
-  setCircleAttr(circle, 'cx', clickX);
-  setCircleAttr(circle, 'cy', clickY);
+  positionCircle(circle, clickX, clickY);
   let textbox = document.getElementById('point-link-to-copy');
   let pageNum = document.getElementById('page_num').textContent;
   textbox.value = `http://${base}?x=${_x}&y=${_y}` +
@@ -93,14 +101,7 @@ function drawCircleCanvas(num) {
     _ctx.fill();
   }
 } */
-
-var pdfDoc = null,
-  pageNum = Number(page),
-  pageRendering = false,
-  pageNumPending = null,
-  scale = 1.5,
-  canvas = document.getElementById('the-canvas'),
-  ctx = canvas.getContext('2d');
+/* pdf rendering from example, mostly */
 /**
  * Get page info from document, resize canvas accordingly, and render page.
  * @param num Page number.
