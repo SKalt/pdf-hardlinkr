@@ -73,7 +73,7 @@ function drawClickCircle(e){
   setCircleAttr(circle, 'cy', clickY);
   let textbox = document.getElementById('point-link-to-copy');
   let pageNum = document.getElementById('page_num').textContent;
-  textbox.textContent = `http://${base}?x=${_x}&y=${_y}` +
+  textbox.value = `http://${base}?x=${_x}&y=${_y}` +
     `&file=${encodeURIComponent(file)}#page=${pageNum}`;
 }
 
@@ -126,7 +126,7 @@ function renderPage(num) {
     // Wait for rendering to finish
     renderTask.promise.then(function() {
       let pageLink = `${file}#page=${num}`;
-      document.getElementById('page-link-to-copy').textContent = pageLink;
+      document.getElementById('page-link-to-copy').value = pageLink;
       pageRendering = false;
       if (pageNumPending !== null) {
         // New page rendering is pending
@@ -182,6 +182,22 @@ function onNextPage() {
 }
 document.getElementById('next').addEventListener('click', onNextPage);
 document.getElementById('svg-cover').addEventListener('click', drawClickCircle);
+function copy(e){
+  let toCopy = document.querySelector(e.target.dataset.toCopy);
+  toCopy.select();
+  try {
+    document.execCommand('copy');
+  } catch (err){
+    alert('Press Ctrl+C to copy the link');
+  }
+}
+const makeCopyable = (id) => {
+  let el = document.getElementById(id);
+  el.addEventListener('click', copy);
+};
+makeCopyable('copy-point-link');
+makeCopyable('copy-page-link');
+
 
 /* -------------------------------- main ------------------------------------ */
 /**
@@ -191,8 +207,7 @@ PDFJS.getDocument(file).then(
   function(pdfDoc_) {
     pdfDoc = pdfDoc_;
     document.getElementById('page_count').textContent = pdfDoc.numPages;
-
-    // Initial/first page rendering
+    document.getElementById('point-link-to-copy').value = base;
     renderPage(pageNum);
   }
 );
