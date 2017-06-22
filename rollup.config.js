@@ -10,7 +10,7 @@ export default {
   entry: 'src/pdf-hardlinkr.js',
   dest: 'build/pdf-hardlinkr.min.js',
   format: 'iife',
-  sourceMap: 'inline',
+  sourcemaps: (process.env.NODE_ENV === 'production' && 'inline'),
   plugins: [
     resolve({
       jsnext: true,
